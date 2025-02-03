@@ -1,0 +1,98 @@
+<abi>
+    <types>
+        native$0000 = DedustAsset;
+        jetton$0001 workchain_id:int8 address:bits256 = DedustAsset;
+        extra_currency$0010 currency_id:int32 = DedustAsset;
+
+        swap_params#_ deadline:uint32 recipient_addr:MsgAddress referral_addr:MsgAddress
+        fulfill_payload:(Maybe ^Cell) reject_payload:(Maybe ^Cell) = DedustSwapParams;
+        step_params#_ kind_out:Bool limit:(VarUInteger 16) next:(Maybe ^DedustSwapStep) = DedustSwapStepParams;
+
+        step#_ pool_addr:MsgAddress params:DedustSwapStepParams = DedustSwapStep;
+    </types>
+    <interface name="dedust_pool">
+        <get_method name="get_reserves" version="dedust"/>
+        <get_method name="get_assets" version="dedust"/>
+        <get_method name="get_jetton_data"/>
+        <msg_in>
+            <internal name="dedust_swap_external"/>
+            <internal name="dedust_swap_peer"/>
+        </msg_in>
+        <msg_out>
+            <internal name="dedust_payout_from_pool"/>
+            <internal name="dedust_swap_peer"/>
+            <ext_out name="dedust_swap"/>
+        </msg_out>
+    </interface>
+    <interface name="dedust_vault">
+        <get_method name="get_asset" version="dedust"/>
+        <msg_in>
+            <internal name="jetton_notify"/>
+            <internal name="jetton_transfer"/>
+            <internal name="dedust_swap"/>
+            <internal name="dedust_payout_from_pool"/>
+        </msg_in>
+        <msg_out>
+            <internal name="jetton_notify"/>
+            <internal name="jetton_transfer"/>
+            <internal name="dedust_swap_external"/>
+            <internal name="dedust_payout"/>
+        </msg_out>
+    </interface>
+
+    <get_method name="get_reserves" >
+        <output version="dedust" fixed_length="true">
+            <int name="reserve0">int257</int>
+            <int name="reserve1">int257</int>
+        </output>
+    </get_method>
+    <get_method name="get_assets" >
+        <output version="dedust" fixed_length="true">
+            <slice name="asset0">DedustAsset</slice>
+            <slice name="asset1">DedustAsset</slice>
+        </output>
+    </get_method>
+    <get_method name="get_asset">
+        <output version="dedust" fixed_length="true">
+            <slice name="asset">DedustAsset</slice>
+        </output>
+    </get_method>
+
+    <internal name="dedust_deposit_liquidity_all">
+        deposit_liquidity_all#b56b9598 query_id:uint64 proof:^Cell
+        owner_addr:MsgAddress min_lp_amount:(VarUInteger 16)
+        ^[ asset0:DedustAsset asset0_amount:(VarUInteger 16) asset1:DedustAsset asset1_amount:(VarUInteger 16) ]
+        fulfill_payload:(Maybe ^Cell) reject_payload:(Maybe ^Cell) = InMsgBody;
+    </internal>
+    <internal name="dedust_swap_external">
+        swap_external#61ee542d query_id:uint64 proof:^Cell amount:(VarUInteger 16)
+        sender_addr:MsgAddress current:DedustSwapStepParams
+        swap_params:^DedustSwapParams = InMsgBody;
+    </internal>
+
+    <internal name="dedust_swap_peer">
+        swap_peer#72aca8aa query_id:uint64 proof:^Cell asset:DedustAsset amount:(VarUInteger 16)
+        sender_addr:MsgAddress current:DedustSwapStepParams
+        swap_params:^DedustSwapParams = InMsgBody;
+    </internal>
+    <internal name="dedust_payout_from_pool">
+        pay_out_from_pool#ad4eb6f5 query_id:uint64 proof:^Cell amount:(VarUInteger 16)
+        recipient_addr:MsgAddress payload:(Maybe ^Cell) = InMsgBody;
+    </internal>
+    <internal name="dedust_payout">
+        payout#474f86cf query_id:uint64 payload:(Maybe ^Cell) = InMsgBody;
+    </internal>
+    <internal name="dedust_swap">
+        swap#ea06185d query_id:uint64 amount:Coins step:DedustSwapStep swap_params:^DedustSwapParams = InMsgBody;
+    </internal>
+
+    <jetton_payload name="dedust_swap">
+        dedust_swap#e3a0d482  step:DedustSwapStep swap_params:^DedustSwapParams = ForwardPayload;
+    </jetton_payload>
+
+    <ext_out name="dedust_swap">
+        swap#9c610de3 asset_in:DedustAsset asset_out:DedustAsset amount_in:Coins amount_out:Coins
+        ^[ sender_addr:MsgAddress referral_addr:MsgAddress
+        reserve0:Coins reserve1:Coins ] = ExtOutMsgBody;
+    </ext_out>
+</abi>
