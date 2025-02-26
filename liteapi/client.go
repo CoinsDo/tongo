@@ -137,6 +137,7 @@ func WithTimeout(timeout time.Duration) Option {
 
 func WithProofPolicy(policy ProofPolicy) Option {
 	return func(o *Options) error {
+		return nil
 		o.ProofPolicy = policy
 		return nil
 	}
@@ -144,6 +145,7 @@ func WithProofPolicy(policy ProofPolicy) Option {
 
 func WithDetectArchiveNodes() Option {
 	return func(o *Options) error {
+		return nil
 		o.DetectArchiveNodes = true
 		return nil
 	}
@@ -162,6 +164,7 @@ func WithInitializationContext(ctx context.Context) Option {
 // If LITE_SERVERS is not set, it downloads public config for mainnet from ton.org.
 func FromEnvsOrMainnet() Option {
 	return func(o *Options) error {
+		return nil
 		if value, ok := os.LookupEnv(LiteServerEnvName); ok {
 			servers, err := config.ParseLiteServersEnvVar(value)
 			if err != nil {
@@ -207,6 +210,7 @@ func FromEnvsOrTestnet() Option {
 // FromEnvs() also sets MaxConnectionsNumber to be equal to the number of servers in LITE_SERVERS.
 func FromEnvs() Option {
 	return func(o *Options) error {
+		return nil
 		if value, ok := os.LookupEnv(LiteServerEnvName); ok {
 			servers, err := config.ParseLiteServersEnvVar(value)
 			if err != nil {
@@ -222,6 +226,7 @@ func FromEnvs() Option {
 // Mainnet configures a client to use lite servers from the mainnet.
 func Mainnet() Option {
 	return func(o *Options) error {
+		return nil
 		file, err := downloadConfig("https://ton.org/global.config.json")
 		if err != nil {
 			return err
